@@ -106,3 +106,19 @@ def test_lease_vs_buy_reports_crossover_month_when_requested(capsys):
     ])
     out = capsys.readouterr().out
     assert "crossover_month: 65" in out
+
+
+def test_debt_vs_invest_sensitivity_flag_prints_each_rate(capsys):
+    main([
+        "debt-vs-invest",
+        "--debt-balance", "8000",
+        "--debt-apr", "0.20",
+        "--minimum-payment", "200",
+        "--extra-amount", "150",
+        "--expected-return", "0.07",
+        "--horizon-months", "60",
+        "--sensitivity", "0.03,0.25",
+    ])
+    out = capsys.readouterr().out
+    assert "3.00%: pay_off_debt_first" in out
+    assert "25.00%: invest_now" in out

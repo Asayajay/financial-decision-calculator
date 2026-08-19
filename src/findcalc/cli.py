@@ -12,7 +12,7 @@ import sys
 from dataclasses import asdict, is_dataclass
 from pathlib import Path
 
-from findcalc.debt_vs_invest import DebtVsInvestInputs
+from findcalc.debt_vs_invest import DebtVsInvestInputs, sensitivity_by_return
 from findcalc.debt_vs_invest import compare as compare_debt_vs_invest
 from findcalc.job_offer import JobOffer
 from findcalc.job_offer import compare_offers
@@ -142,6 +142,15 @@ def run_debt_vs_invest(args: argparse.Namespace) -> None:
     _print_kv("net_worth_difference", result.net_worth_difference)
     _print_kv("breakeven_return_rate", result.breakeven_return_rate)
 
+    if args.sensitivity:
+        rates = [float(r) for r in args.sensitivity.split(",")]
+        _print_section("Sensitivity to expected return")
+        for row in sensitivity_by_return(inputs, args.horizon_months, rates):
+            print(
+                f"  {row.expected_annual_return:.2%}: {row.better_option} "
+                f"(by ${row.net_worth_difference:,.2f})"
+            )
+
     if args.csv:
         rows = []
         for scenario in (result.pay_off_debt_first, result.invest_now):
@@ -244,6 +253,11 @@ def build_parser() -> argparse.ArgumentParser:
     dvi.add_argument("--extra-amount", type=float, required=True)
     dvi.add_argument("--expected-return", type=float, required=True)
     dvi.add_argument("--horizon-months", type=int, required=True)
+    dvi.add_argument(
+        "--sensitivity",
+        metavar="RATE,RATE,...",
+        help="Comma-separated expected-return rates to re-run the comparison at, e.g. 0.03,0.05,0.07,0.10",
+    )
     dvi.add_argument("--csv", help="Write the breakdown to this CSV path.")
     dvi.set_defaults(func=run_debt_vs_invest)
 
