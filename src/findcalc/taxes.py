@@ -61,13 +61,8 @@ def compute_state_tax(gross_salary: float, state: str) -> float:
         return 0.0
     if model.kind == "flat":
         return round(taxable_income * model.flat_rate, 2)
-    if model.kind == "graduated_2tier":
-        return round(
-            _progressive_tax(
-                taxable_income, [(0, model.low_rate), (model.top_threshold, model.top_rate)]
-            ),
-            2,
-        )
+    if model.kind == "graduated":
+        return round(_progressive_tax(taxable_income, list(model.brackets)), 2)
     raise ValueError(f"Unknown state tax model kind: {model.kind!r}")
 
 

@@ -77,3 +77,12 @@ def test_take_home_net_annual_equals_gross_minus_total_tax():
 def test_take_home_zero_salary_has_zero_effective_rate():
     result = compute_take_home(0, "Texas")
     assert result.effective_tax_rate == 0.0
+
+
+def test_state_tax_california_full_bracket_ladder_hand_calculation():
+    # $150,000 - $15,750 standard deduction = $134,250 taxable, which climbs
+    # through six of California's ten brackets before landing in the 9.3%
+    # bracket. This pins down the fix for an earlier version of this model
+    # that only used the bottom (1%) and top (13.3%) rates and badly
+    # understated tax for anyone not near either end of the scale.
+    assert compute_state_tax(150_000, "California") == 9_027.61
