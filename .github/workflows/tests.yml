@@ -27,5 +27,8 @@ jobs:
           pip install -r requirements-dev.txt
           pip install -r webapp/requirements.txt
 
+      - name: Lint
+        run: pyflakes src webapp tests
+
       - name: Run tests
         run: pytest -v

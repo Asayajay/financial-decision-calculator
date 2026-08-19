@@ -18,7 +18,7 @@ from findcalc.data.federal_tax import (
     SOCIAL_SECURITY_WAGE_BASE_2025,
     STANDARD_DEDUCTION_SINGLE_2025,
 )
-from findcalc.data.state_tax import StateTaxModel, get_state_tax_model
+from findcalc.data.state_tax import get_state_tax_model
 
 
 def _progressive_tax(taxable_income: float, brackets: list[tuple[float, float]]) -> float:

@@ -10,7 +10,6 @@ import argparse
 import csv
 import sys
 from dataclasses import asdict, is_dataclass
-from pathlib import Path
 
 from findcalc.debt_vs_invest import DebtVsInvestInputs, sensitivity_by_return
 from findcalc.debt_vs_invest import compare as compare_debt_vs_invest
