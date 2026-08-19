@@ -79,7 +79,26 @@ class LeaseVsBuyComparison:
     savings: float
 
 
+def _require_positive(value: float, name: str) -> None:
+    if value <= 0:
+        raise ValueError(f"{name} must be positive, got {value!r}")
+
+
+def _require_non_negative(value: float, name: str) -> None:
+    if value < 0:
+        raise ValueError(f"{name} must not be negative, got {value!r}")
+
+
 def compute_buy(inputs: BuyInputs, horizon_months: int) -> BuyResult:
+    _require_positive(inputs.vehicle_price, "vehicle_price")
+    _require_non_negative(inputs.down_payment, "down_payment")
+    _require_non_negative(inputs.loan_apr, "loan_apr")
+    _require_positive(inputs.loan_term_months, "loan_term_months")
+    _require_non_negative(inputs.sales_tax_rate, "sales_tax_rate")
+    if not 0 <= inputs.annual_depreciation_rate < 1:
+        raise ValueError("annual_depreciation_rate must be in [0, 1)")
+    _require_positive(horizon_months, "horizon_months")
+
     sales_tax_paid = round(inputs.vehicle_price * inputs.sales_tax_rate, 2)
     amount_financed = max(
         inputs.vehicle_price + sales_tax_paid - inputs.down_payment, 0.0
@@ -140,6 +159,10 @@ def compute_buy(inputs: BuyInputs, horizon_months: int) -> BuyResult:
 def compute_lease(inputs: LeaseInputs, horizon_months: int) -> LeaseResult:
     if inputs.lease_term_months <= 0:
         raise ValueError("lease_term_months must be positive")
+    _require_non_negative(inputs.due_at_signing, "due_at_signing")
+    _require_non_negative(inputs.monthly_payment, "monthly_payment")
+    _require_non_negative(inputs.disposition_fee, "disposition_fee")
+    _require_positive(horizon_months, "horizon_months")
 
     num_signings = math.ceil(horizon_months / inputs.lease_term_months)
     full_terms = horizon_months // inputs.lease_term_months

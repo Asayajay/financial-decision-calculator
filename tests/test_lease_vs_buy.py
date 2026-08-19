@@ -97,3 +97,33 @@ def test_compare_picks_cheaper_option_consistently():
 def test_compare_savings_is_nonnegative():
     comparison = compare(make_buy_inputs(), make_lease_inputs(), horizon_months=36)
     assert comparison.savings >= 0
+
+
+def test_compute_buy_rejects_zero_price():
+    with pytest.raises(ValueError):
+        compute_buy(make_buy_inputs(vehicle_price=0), horizon_months=36)
+
+
+def test_compute_buy_rejects_negative_down_payment():
+    with pytest.raises(ValueError):
+        compute_buy(make_buy_inputs(down_payment=-500), horizon_months=36)
+
+
+def test_compute_buy_rejects_depreciation_rate_of_one_or_more():
+    with pytest.raises(ValueError):
+        compute_buy(make_buy_inputs(annual_depreciation_rate=1.0), horizon_months=36)
+
+
+def test_compute_buy_rejects_zero_horizon():
+    with pytest.raises(ValueError):
+        compute_buy(make_buy_inputs(), horizon_months=0)
+
+
+def test_compute_lease_rejects_negative_monthly_payment():
+    with pytest.raises(ValueError):
+        compute_lease(make_lease_inputs(monthly_payment=-100), horizon_months=36)
+
+
+def test_compute_lease_rejects_zero_horizon():
+    with pytest.raises(ValueError):
+        compute_lease(make_lease_inputs(), horizon_months=0)
