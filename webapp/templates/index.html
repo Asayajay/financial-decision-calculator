@@ -1,2 +1,102 @@
 <!doctype html>
-<html><head><title>placeholder</title></head><body>placeholder</body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Financial decision calculator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Financial decision calculator</h1>
+      <p>Three everyday money decisions, with the actual math behind every number. Nothing here is a black-box recommendation.</p>
+    </header>
+
+    <nav class="tab-toggle" role="tablist">
+      <button class="tab-btn active" data-tab="lease-vs-buy" role="tab" aria-selected="true">Lease vs. buy</button>
+      <button class="tab-btn" data-tab="debt-vs-invest" role="tab" aria-selected="false">Debt vs. invest</button>
+      <button class="tab-btn" data-tab="job-offer" role="tab" aria-selected="false">Job offers</button>
+    </nav>
+
+    <!-- Lease vs. buy -->
+    <section class="tab-panel active" id="panel-lease-vs-buy">
+      <div class="grid">
+        <form id="form-lease-vs-buy" class="card form">
+          <h2>Buy</h2>
+          <label>Vehicle price ($) <input type="number" name="price" value="30000" required></label>
+          <label>Down payment ($) <input type="number" name="down_payment" value="3000"></label>
+          <label>Loan APR (e.g. 0.06 = 6%) <input type="number" step="0.001" name="loan_apr" value="0.06" required></label>
+          <label>Loan term (months) <input type="number" name="loan_term_months" value="60" required></label>
+          <label>Sales tax rate (e.g. 0.07) <input type="number" step="0.001" name="sales_tax_rate" value="0.07"></label>
+          <label>Annual insurance ($) <input type="number" name="buy_insurance" value="1200"></label>
+          <label>Annual maintenance ($) <input type="number" name="buy_maintenance" value="600"></label>
+          <label>Annual registration ($) <input type="number" name="buy_registration" value="150"></label>
+          <label>Annual depreciation rate <input type="number" step="0.01" name="depreciation_rate" value="0.15"></label>
+
+          <h2>Lease</h2>
+          <label>Due at signing ($) <input type="number" name="lease_due_at_signing" value="2000" required></label>
+          <label>Monthly payment ($) <input type="number" name="lease_monthly" value="350" required></label>
+          <label>Lease term (months) <input type="number" name="lease_term_months" value="36" required></label>
+          <label>Disposition fee ($) <input type="number" name="lease_disposition_fee" value="395"></label>
+          <label>Mileage overage fee ($) <input type="number" name="lease_mileage_fee" value="0"></label>
+          <label>Annual insurance ($) <input type="number" name="lease_insurance" value="1100"></label>
+          <label>Annual maintenance ($) <input type="number" name="lease_maintenance" value="200"></label>
+          <label>Annual registration ($) <input type="number" name="lease_registration" value="150"></label>
+
+          <h2>Horizon</h2>
+          <label>How long you'd keep or lease the car (months) <input type="number" name="horizon_months" value="36" required></label>
+
+          <button type="submit">Compare</button>
+        </form>
+
+        <div class="card results" id="results-lease-vs-buy">
+          <p class="placeholder">Fill in the form and hit Compare to see the breakdown.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Debt vs. invest -->
+    <section class="tab-panel" id="panel-debt-vs-invest">
+      <div class="grid">
+        <form id="form-debt-vs-invest" class="card form">
+          <label>Debt balance ($) <input type="number" name="debt_balance" value="8000" required></label>
+          <label>Debt APR (e.g. 0.22 = 22%) <input type="number" step="0.001" name="debt_apr" value="0.22" required></label>
+          <label>Minimum monthly payment ($) <input type="number" name="minimum_payment" value="200" required></label>
+          <label>Extra cash available per month ($) <input type="number" name="extra_amount" value="150" required></label>
+          <label>Expected annual investment return (e.g. 0.07 = 7%) <input type="number" step="0.001" name="expected_return" value="0.07" required></label>
+          <label>Comparison horizon (months) <input type="number" name="horizon_months" value="60" required></label>
+          <button type="submit">Compare</button>
+        </form>
+
+        <div class="card results" id="results-debt-vs-invest">
+          <p class="placeholder">Fill in the form and hit Compare to see the breakdown.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Job offers -->
+    <section class="tab-panel" id="panel-job-offer">
+      <div class="grid">
+        <form id="form-job-offer" class="card form">
+          <div id="offer-rows"></div>
+          <button type="button" id="add-offer">+ Add another offer</button>
+          <button type="submit">Compare</button>
+        </form>
+
+        <div class="card results" id="results-job-offer">
+          <p class="placeholder">Add at least one offer and hit Compare to see the breakdown.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>Tax year 2025 federal/state brackets and Q1 2026 state-level cost-of-living index. Single filer only, no itemizing or credits. See the repo's DATA_SOURCES.md for exactly what's modeled and what's simplified.</p>
+    </footer>
+  </div>
+
+  <script id="states-data" type="application/json">{{ states_json | safe }}</script>
+  <script src="{{ url_for('static', filename='chart.js') }}"></script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

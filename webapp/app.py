@@ -5,6 +5,7 @@ math lives in src/findcalc, this file just turns request JSON into the
 dataclasses those modules expect and serializes the result back out.
 """
 
+import json
 import os
 import sys
 from dataclasses import asdict
@@ -31,7 +32,8 @@ def _num(data: dict, key: str, default=0.0):
 
 @app.route("/")
 def index():
-    return render_template("index.html", states=known_states())
+    states_json = json.dumps(sorted(known_states()))
+    return render_template("index.html", states_json=states_json)
 
 
 @app.route("/api/states")
@@ -162,4 +164,4 @@ def api_job_offer():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5060)
+    app.run(debug=True, port=8077)
