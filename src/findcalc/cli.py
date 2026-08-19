@@ -195,11 +195,11 @@ def run_job_offer(args: argparse.Namespace) -> None:
         _print_kv("first_year_cash", result.first_year_cash)
         _print_kv("cost_of_living_index", result.cost_of_living_index)
         _print_kv("col_adjusted_net_annual", result.col_adjusted_net_annual)
-        rows.append({"label": result.label, **_flatten(result.take_home), **{
-            "first_year_cash": result.first_year_cash,
-            "cost_of_living_index": result.cost_of_living_index,
-            "col_adjusted_net_annual": result.col_adjusted_net_annual,
-        }})
+        row = {"label": result.label, **_flatten(result.take_home)}
+        row["first_year_cash"] = result.first_year_cash
+        row["cost_of_living_index"] = result.cost_of_living_index
+        row["col_adjusted_net_annual"] = result.col_adjusted_net_annual
+        rows.append(row)
 
     _print_section("Verdict")
     _print_kv("best by raw net income", comparison.best_by_raw_net_income)
