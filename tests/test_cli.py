@@ -81,3 +81,28 @@ def test_cli_reports_unknown_state_as_clean_error(capsys):
     err = capsys.readouterr().err
     assert exit_code == 1
     assert "Atlantis" in err
+
+
+def test_lease_vs_buy_reports_crossover_month_when_requested(capsys):
+    main([
+        "lease-vs-buy",
+        "--price", "30000",
+        "--down-payment", "3000",
+        "--loan-apr", "0.06",
+        "--loan-term-months", "60",
+        "--sales-tax-rate", "0.07",
+        "--buy-insurance", "1200",
+        "--buy-maintenance", "600",
+        "--buy-registration", "150",
+        "--lease-due-at-signing", "2000",
+        "--lease-monthly", "350",
+        "--lease-term-months", "36",
+        "--lease-disposition-fee", "395",
+        "--lease-insurance", "1100",
+        "--lease-maintenance", "200",
+        "--lease-registration", "150",
+        "--horizon-months", "36",
+        "--find-crossover", "120",
+    ])
+    out = capsys.readouterr().out
+    assert "crossover_month: 65" in out

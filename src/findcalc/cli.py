@@ -16,7 +16,7 @@ from findcalc.debt_vs_invest import DebtVsInvestInputs
 from findcalc.debt_vs_invest import compare as compare_debt_vs_invest
 from findcalc.job_offer import JobOffer
 from findcalc.job_offer import compare_offers
-from findcalc.lease_vs_buy import BuyInputs, LeaseInputs
+from findcalc.lease_vs_buy import BuyInputs, LeaseInputs, find_crossover_month
 from findcalc.lease_vs_buy import compare as compare_lease_vs_buy
 
 
@@ -102,6 +102,16 @@ def run_lease_vs_buy(args: argparse.Namespace) -> None:
     _print_section("Verdict")
     _print_kv("cheaper_option", result.cheaper_option)
     _print_kv("savings", result.savings)
+
+    if args.find_crossover:
+        crossover = find_crossover_month(buy_inputs, lease_inputs, max_months=args.find_crossover)
+        if crossover is None:
+            _print_kv(
+                "crossover_month",
+                f"none found within {args.find_crossover} months -- {result.cheaper_option} stays cheaper the whole window",
+            )
+        else:
+            _print_kv("crossover_month", f"{crossover} (the cheaper option flips there)")
 
     if args.csv:
         row = {"scenario": "buy", **_flatten(result.buy)}
@@ -218,6 +228,12 @@ def build_parser() -> argparse.ArgumentParser:
     lvb.add_argument("--lease-maintenance", type=float, default=0.0, help="Annual maintenance if leased.")
     lvb.add_argument("--lease-registration", type=float, default=0.0)
     lvb.add_argument("--horizon-months", type=int, required=True)
+    lvb.add_argument(
+        "--find-crossover",
+        type=int,
+        metavar="MAX_MONTHS",
+        help="Search up to this many months for the point where the cheaper option flips.",
+    )
     lvb.add_argument("--csv", help="Write the breakdown to this CSV path.")
     lvb.set_defaults(func=run_lease_vs_buy)
 
