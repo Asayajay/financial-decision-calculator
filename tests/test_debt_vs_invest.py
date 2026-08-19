@@ -90,3 +90,26 @@ def test_compare_rejects_zero_horizon():
 def test_compare_rejects_return_below_negative_100_percent():
     with pytest.raises(ValueError):
         compare(make_inputs(expected_annual_return=-1.5), horizon_months=36)
+
+
+def test_sensitivity_by_return_flips_at_debt_apr():
+    from findcalc.debt_vs_invest import sensitivity_by_return
+
+    rows = sensitivity_by_return(
+        make_inputs(debt_apr=0.20), horizon_months=60, return_rates=[0.05, 0.10, 0.15, 0.25, 0.30]
+    )
+    assert [row.better_option for row in rows] == [
+        "pay_off_debt_first",
+        "pay_off_debt_first",
+        "pay_off_debt_first",
+        "invest_now",
+        "invest_now",
+    ]
+
+
+def test_sensitivity_by_return_preserves_input_order():
+    from findcalc.debt_vs_invest import sensitivity_by_return
+
+    rates = [0.03, 0.30, 0.10]
+    rows = sensitivity_by_return(make_inputs(), horizon_months=36, return_rates=rates)
+    assert [row.expected_annual_return for row in rows] == rates

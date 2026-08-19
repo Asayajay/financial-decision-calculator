@@ -145,3 +145,40 @@ def compare(inputs: DebtVsInvestInputs, horizon_months: int) -> DebtVsInvestComp
         net_worth_difference=abs(diff),
         breakeven_return_rate=inputs.debt_apr,
     )
+
+
+@dataclass
+class SensitivityRow:
+    expected_annual_return: float
+    better_option: str
+    net_worth_difference: float
+
+
+def sensitivity_by_return(
+    inputs: DebtVsInvestInputs, horizon_months: int, return_rates: list[float]
+) -> list[SensitivityRow]:
+    """Re-run the comparison across a range of expected returns.
+
+    The debt APR is fixed by the debt itself; the expected investment
+    return is the genuinely uncertain input in this whole calculator. This
+    shows how sensitive the verdict is to that guess, instead of hiding it
+    behind a single point estimate.
+    """
+    rows = []
+    for rate in return_rates:
+        scenario_inputs = DebtVsInvestInputs(
+            debt_balance=inputs.debt_balance,
+            debt_apr=inputs.debt_apr,
+            minimum_payment=inputs.minimum_payment,
+            extra_amount=inputs.extra_amount,
+            expected_annual_return=rate,
+        )
+        result = compare(scenario_inputs, horizon_months)
+        rows.append(
+            SensitivityRow(
+                expected_annual_return=rate,
+                better_option=result.better_option,
+                net_worth_difference=result.net_worth_difference,
+            )
+        )
+    return rows
