@@ -94,6 +94,19 @@ def compare(inputs: DebtVsInvestInputs, horizon_months: int) -> DebtVsInvestComp
     paid off, the cash that used to service it starts getting invested too,
     so the two schedules stay directly comparable.
     """
+    if inputs.debt_balance <= 0:
+        raise ValueError("debt_balance must be positive")
+    if inputs.debt_apr < 0:
+        raise ValueError("debt_apr must not be negative")
+    if inputs.minimum_payment <= 0:
+        raise ValueError("minimum_payment must be positive")
+    if inputs.extra_amount < 0:
+        raise ValueError("extra_amount must not be negative")
+    if inputs.expected_annual_return < -1:
+        raise ValueError("expected_annual_return can't be below -100%")
+    if horizon_months <= 0:
+        raise ValueError("horizon_months must be positive")
+
     pay_off_first = _scenario(
         name="pay_off_debt_first",
         debt_balance=inputs.debt_balance,

@@ -70,3 +70,23 @@ def test_breakeven_return_rate_equals_debt_apr():
 def test_minimum_payment_below_interest_raises_clear_error():
     with pytest.raises(ValueError):
         compare(make_inputs(debt_balance=8000, debt_apr=0.22, minimum_payment=50), horizon_months=12)
+
+
+def test_compare_rejects_zero_debt_balance():
+    with pytest.raises(ValueError):
+        compare(make_inputs(debt_balance=0), horizon_months=36)
+
+
+def test_compare_rejects_negative_extra_amount():
+    with pytest.raises(ValueError):
+        compare(make_inputs(extra_amount=-50), horizon_months=36)
+
+
+def test_compare_rejects_zero_horizon():
+    with pytest.raises(ValueError):
+        compare(make_inputs(), horizon_months=0)
+
+
+def test_compare_rejects_return_below_negative_100_percent():
+    with pytest.raises(ValueError):
+        compare(make_inputs(expected_annual_return=-1.5), horizon_months=36)

@@ -42,6 +42,11 @@ class JobOfferComparison:
 
 
 def evaluate_offer(offer: JobOffer) -> JobOfferResult:
+    if offer.gross_salary <= 0:
+        raise ValueError(f"gross_salary must be positive for offer {offer.label!r}")
+    if offer.signing_bonus < 0 or offer.relocation_assistance < 0:
+        raise ValueError(f"signing_bonus/relocation_assistance can't be negative for offer {offer.label!r}")
+
     take_home = compute_take_home(offer.gross_salary, offer.state)
     col_index = get_col_index(offer.state)
 

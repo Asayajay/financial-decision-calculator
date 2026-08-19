@@ -56,3 +56,13 @@ def test_compare_offers_returns_one_result_per_offer():
     comparison = compare_offers(offers)
     assert len(comparison.results) == 3
     assert {r.label for r in comparison.results} == {"A", "B", "C"}
+
+
+def test_evaluate_offer_rejects_zero_salary():
+    with pytest.raises(ValueError):
+        evaluate_offer(JobOffer(label="Bad", state="Texas", gross_salary=0))
+
+
+def test_evaluate_offer_rejects_negative_signing_bonus():
+    with pytest.raises(ValueError):
+        evaluate_offer(JobOffer(label="Bad", state="Texas", gross_salary=100_000, signing_bonus=-1000))
