@@ -229,3 +229,26 @@ def compare(
         cheaper_option=cheaper,
         savings=abs(diff),
     )
+
+
+def find_crossover_month(
+    buy_inputs: BuyInputs, lease_inputs: LeaseInputs, max_months: int = 120
+) -> int | None:
+    """Find the first month at which the cheaper option flips.
+
+    Buying usually starts out more expensive (the down payment and sales
+    tax land up front) and gets relatively cheaper the longer you hold the
+    car, since lease payments never stop but loan payments do and the car
+    itself keeps some resale value. This walks the horizon month by month
+    and returns the first month where compare()'s answer differs from
+    month 1's answer, or None if it never flips within max_months.
+    """
+    if max_months <= 1:
+        raise ValueError("max_months must be greater than 1")
+
+    initial = compare(buy_inputs, lease_inputs, horizon_months=1).cheaper_option
+    for month in range(2, max_months + 1):
+        result = compare(buy_inputs, lease_inputs, horizon_months=month)
+        if result.cheaper_option != initial and result.cheaper_option != "tie":
+            return month
+    return None

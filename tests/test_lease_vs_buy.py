@@ -1,6 +1,13 @@
 import pytest
 
-from findcalc.lease_vs_buy import BuyInputs, LeaseInputs, compare, compute_buy, compute_lease
+from findcalc.lease_vs_buy import (
+    BuyInputs,
+    LeaseInputs,
+    compare,
+    compute_buy,
+    compute_lease,
+    find_crossover_month,
+)
 
 
 def make_buy_inputs(**overrides):
@@ -127,3 +134,29 @@ def test_compute_lease_rejects_negative_monthly_payment():
 def test_compute_lease_rejects_zero_horizon():
     with pytest.raises(ValueError):
         compute_lease(make_lease_inputs(), horizon_months=0)
+
+
+def test_find_crossover_month_matches_known_flip_point():
+    # With these defaults, leasing wins at every horizon through 60 months
+    # (the loan term), then buying pulls ahead once the loan is paid off
+    # and equity keeps building while lease payments never stop.
+    crossover = find_crossover_month(make_buy_inputs(), make_lease_inputs(), max_months=120)
+    assert crossover == 65
+
+    before = compare(make_buy_inputs(), make_lease_inputs(), horizon_months=crossover - 1)
+    at_crossover = compare(make_buy_inputs(), make_lease_inputs(), horizon_months=crossover)
+    assert before.cheaper_option == "lease"
+    assert at_crossover.cheaper_option == "buy"
+
+
+def test_find_crossover_month_returns_none_when_no_flip_occurs():
+    # A lease so cheap it never loses just keeps winning the whole window.
+    crossover = find_crossover_month(
+        make_buy_inputs(), make_lease_inputs(monthly_payment=1), max_months=24
+    )
+    assert crossover is None
+
+
+def test_find_crossover_month_rejects_tiny_max_months():
+    with pytest.raises(ValueError):
+        find_crossover_month(make_buy_inputs(), make_lease_inputs(), max_months=1)
