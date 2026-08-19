@@ -93,6 +93,70 @@ def remaining_balance_at(
     return schedule[month - 1].balance
 
 
+def fixed_payment_schedule(
+    principal: float,
+    annual_rate: float,
+    payment: float,
+    max_months: int = 600,
+) -> list[AmortizationRow]:
+    """Payoff schedule for a chosen dollar payment, rather than a chosen term.
+
+    This is the right model for a credit card or personal loan where you
+    decide how much to pay each month instead of being handed a fixed term.
+    Raises ValueError if the payment doesn't even cover the first month's
+    interest, since the balance would never shrink.
+    """
+    if principal <= 0:
+        return []
+
+    r = annual_rate / 12
+    if payment <= principal * r:
+        raise ValueError(
+            "payment does not cover interest; balance would never decrease"
+        )
+
+    balance = principal
+    rows: list[AmortizationRow] = []
+    month = 0
+
+    while balance > 0.01 and month < max_months:
+        month += 1
+        interest = balance * r
+        if payment - interest >= balance:
+            principal_paid = balance
+            payment_this_month = principal_paid + interest
+            balance = 0.0
+        else:
+            principal_paid = payment - interest
+            payment_this_month = payment
+            balance -= principal_paid
+
+        rows.append(
+            AmortizationRow(
+                month=month,
+                payment=round(payment_this_month, 2),
+                principal_paid=round(principal_paid, 2),
+                interest_paid=round(interest, 2),
+                balance=round(max(balance, 0.0), 2),
+            )
+        )
+
+    return rows
+
+
+def future_value_of_variable_series(amounts: list[float], annual_rate: float) -> float:
+    """Future value of a stream of month-end contributions that can vary month to month.
+
+    amounts[i] is contributed at the end of month i + 1. Equivalent to
+    future_value_of_series when every amount is the same.
+    """
+    r = annual_rate / 12
+    fv = 0.0
+    for amount in amounts:
+        fv = fv * (1 + r) + amount
+    return fv
+
+
 def future_value_of_series(monthly_amount: float, annual_rate: float, months: int) -> float:
     """Future value of investing a fixed amount every month, compounded monthly.
 

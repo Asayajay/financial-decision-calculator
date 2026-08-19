@@ -1,6 +1,10 @@
+import pytest
+
 from findcalc.amortization import (
     amortization_schedule,
+    fixed_payment_schedule,
     future_value_of_series,
+    future_value_of_variable_series,
     monthly_payment,
     remaining_balance_at,
 )
@@ -69,3 +73,32 @@ def test_future_value_of_series_grows_with_rate():
 
 def test_future_value_of_series_zero_months_is_zero():
     assert future_value_of_series(100, 0.05, 0) == 0.0
+
+
+def test_fixed_payment_schedule_pays_off_balance():
+    schedule = fixed_payment_schedule(5000, 0.18, 200)
+    assert schedule[-1].balance == 0.0
+
+
+def test_fixed_payment_schedule_rejects_payment_below_interest():
+    with pytest.raises(ValueError):
+        fixed_payment_schedule(5000, 0.24, 90)  # monthly interest is $100
+
+
+def test_fixed_payment_schedule_higher_payment_pays_off_faster():
+    slow = fixed_payment_schedule(5000, 0.18, 150)
+    fast = fixed_payment_schedule(5000, 0.18, 300)
+    assert len(fast) < len(slow)
+
+
+def test_future_value_of_variable_series_matches_constant_case():
+    amounts = [100] * 24
+    assert round(future_value_of_variable_series(amounts, 0.06), 2) == round(
+        future_value_of_series(100, 0.06, 24), 2
+    )
+
+
+def test_future_value_of_variable_series_handles_ramp_up():
+    amounts = [0, 0, 0, 500, 500, 500]
+    fv = future_value_of_variable_series(amounts, 0.06)
+    assert fv > 1500  # more than the raw sum, thanks to compounding
